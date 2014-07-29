@@ -326,8 +326,6 @@ public class ForecastFragment extends Fragment {
     }
 
     private double celsiusToFahrenheit(double temp) {
-        temp *= 1.8;
-        temp += 32;
-        return temp;
+        return temp * 1.8 + 32;
     }
 }
