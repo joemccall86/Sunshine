@@ -15,5 +15,7 @@
     <string name="pref_units_key" translatable="false">temperature_units</string>
     <string name="pref_units_metric" translatable="false">metric</string>
     <string name="action_map">View Location</string>
+    <string name="share_item">Share Weather</string>
+    <string name="action_share">Share</string>
 
 </resources>
