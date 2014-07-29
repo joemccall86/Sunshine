@@ -251,6 +251,17 @@ public class ForecastFragment extends Fragment {
      * Prepare the weather high/lows for presentation.
      */
     private String formatHighLows(double high, double low) {
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String units = sharedPreferences.getString(
+                getString(R.string.pref_units_key),
+                getString(R.string.pref_units_metric));
+
+        if (units.equals("imperial")) {
+            high = celsiusToFahrenheit(high);
+            low = celsiusToFahrenheit(low);
+        }
+
         // For presentation, assume the user doesn't care about tenths of a degree.
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
@@ -306,16 +317,6 @@ public class ForecastFragment extends Fragment {
             JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
             double high = temperatureObject.getDouble(OWM_MAX);
             double low = temperatureObject.getDouble(OWM_MIN);
-
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            String units = sharedPreferences.getString(
-                    getString(R.string.pref_units_key),
-                    getString(R.string.pref_units_metric));
-
-            if (units.equals("imperial")) {
-                high = celsiusToFahrenheit(high);
-                low = celsiusToFahrenheit(low);
-            }
 
             highAndLow = formatHighLows(high, low);
             resultStrs[i] = day + " - " + description + " - " + highAndLow;
