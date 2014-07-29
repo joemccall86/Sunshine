@@ -7,5 +7,6 @@
     <string name="action_refresh" translatable="false">Refresh</string>
     <string name="title_activity_my">MyActivity</string>
     <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_settings">Settings</string>
 
 </resources>
