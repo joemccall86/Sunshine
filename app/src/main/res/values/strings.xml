@@ -11,8 +11,8 @@
     <string name="pref_location_label">Location</string>
     <string name="pref_location_key" translatable="false">location</string>
     <string name="pref_location_default" translatable="false">32773</string>
-    <string name="pref_temperatureUnits_label">Temperature Units</string>
-    <string name="pref_temperatureUnits_key" translatable="false">temperature_units</string>
-    <string name="pref_temperatureUnits_default" translatable="false">metric</string>
+    <string name="pref_units_label">Temperature Units</string>
+    <string name="pref_units_key" translatable="false">temperature_units</string>
+    <string name="pref_units_metric" translatable="false">metric</string>
 
 </resources>

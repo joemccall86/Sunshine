@@ -309,8 +309,8 @@ public class ForecastFragment extends Fragment {
 
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             String units = sharedPreferences.getString(
-                    getString(R.string.pref_temperatureUnits_key),
-                    getString(R.string.pref_temperatureUnits_default));
+                    getString(R.string.pref_units_key),
+                    getString(R.string.pref_units_metric));
 
             if (units.equals("imperial")) {
                 high = celsiusToFahrenheit(high);
