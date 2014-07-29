@@ -62,14 +62,24 @@ public class ForecastFragment extends Fragment {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
 
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            new FetchWeatherTask().execute(sharedPreferences.getString(
-                    getString(R.string.pref_location_key),
-                    getString(R.string.pref_location_default)));
+            updateWeather();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
+
+    private void updateWeather() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        new FetchWeatherTask().execute(sharedPreferences.getString(
+                getString(R.string.pref_location_key),
+                getString(R.string.pref_location_default)));
     }
 
     @Override
