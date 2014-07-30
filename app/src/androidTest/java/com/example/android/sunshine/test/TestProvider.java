@@ -18,7 +18,6 @@ package com.example.android.sunshine.test;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Location;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
@@ -26,9 +25,15 @@ import com.example.android.sunshine.data.WeatherContract.LocationEntry;
 import com.example.android.sunshine.data.WeatherContract.WeatherEntry;
 import com.example.android.sunshine.data.WeatherDbHelper;
 
+import java.util.Map;
+import java.util.Set;
+
 public class TestProvider extends AndroidTestCase {
 
     public static final String LOG_TAG = TestProvider.class.getSimpleName();
+    public static final String TEST_CITY_NAME = "North Pole";
+    public static final String TEST_LOCATION = "99705";
+    public static final String TEST_DATE = "20141205";
 
     public void testDeleteDb() throws Throwable {
         mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
@@ -41,7 +46,7 @@ public class TestProvider extends AndroidTestCase {
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues testValues = TestDb.createNorthPoleLocationValues();
+        ContentValues testValues = getLocationContentValues();
 
         long locationRowId;
         locationRowId = db.insert(LocationEntry.TABLE_NAME, null, testValues);
@@ -61,7 +66,7 @@ public class TestProvider extends AndroidTestCase {
                 null // sort order
         );
 
-        TestDb.validateCursor(cursor, testValues);
+        validateCursor(cursor, testValues);
 
         // Now see if we can successfully query if we include the row id
         cursor = mContext.getContentResolver().query(
@@ -72,10 +77,10 @@ public class TestProvider extends AndroidTestCase {
                 null  // sort order
         );
 
-        TestDb.validateCursor(cursor, testValues);
+        validateCursor(cursor, testValues);
 
         // Fantastic.  Now that we have a location, add some weather!
-        ContentValues weatherValues = TestDb.createWeatherValues(locationRowId);
+        ContentValues weatherValues = getWeatherContentValues(locationRowId);
 
         long weatherRowId = db.insert(WeatherEntry.TABLE_NAME, null, weatherValues);
         assertTrue(weatherRowId != -1);
@@ -88,7 +93,58 @@ public class TestProvider extends AndroidTestCase {
                 null  // sort order
         );
 
-        TestDb.validateCursor(weatherCursor, weatherValues);
+        if (weatherCursor.moveToFirst()) {
+            validateCursor(weatherCursor, weatherValues);
+        } else {
+            fail("No weather data returned!");
+        }
+
+        weatherCursor.close();
+
+        weatherCursor = mContext.getContentResolver().query(WeatherEntry.buildWeatherLocation(TEST_LOCATION),
+                null, // leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                null  // sort order
+        );
+
+        if (weatherCursor.moveToFirst()) {
+            validateCursor(weatherCursor, weatherValues);
+        } else {
+            fail("No weather data returned!");
+        }
+
+        weatherCursor.close();
+
+        weatherCursor = mContext.getContentResolver().query(WeatherEntry.buildWeatherLocationWithStartDate(TEST_LOCATION, TEST_DATE),
+                null, // leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                null  // sort order
+        );
+
+        if (weatherCursor.moveToFirst()) {
+            validateCursor(weatherCursor, weatherValues);
+        } else {
+            fail("No weather data returned!");
+        }
+
+        weatherCursor.close();
+
+        weatherCursor = mContext.getContentResolver().query(WeatherEntry.buildWeatherLocationWithDate(TEST_LOCATION, TEST_DATE),
+                null, // leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                null  // sort order
+        );
+
+        if (weatherCursor.moveToFirst()) {
+            validateCursor(weatherCursor, weatherValues);
+        } else {
+            fail("No weather data returned!");
+        }
+
+        weatherCursor.close();
 
         dbHelper.close();
     }
@@ -124,5 +180,49 @@ public class TestProvider extends AndroidTestCase {
         assertEquals(LocationEntry.CONTENT_ITEM_TYPE, type);
     }
 
+
+    static ContentValues getLocationContentValues() {
+        // Create a new map of values, where column names are the keys
+        ContentValues testValues = new ContentValues();
+        testValues.put(LocationEntry.COLUMN_LOCATION_SETTING, TEST_LOCATION);
+        testValues.put(LocationEntry.COLUMN_CITY_NAME, TEST_CITY_NAME);
+        testValues.put(LocationEntry.COLUMN_COORD_LAT, 64.7488);
+        testValues.put(LocationEntry.COLUMN_COORD_LONG, -147.353);
+
+        return testValues;
+    }
+
+
+    static ContentValues getWeatherContentValues(long locationRowId) {
+        ContentValues weatherValues = new ContentValues();
+        weatherValues.put(WeatherEntry.COLUMN_LOC_KEY, locationRowId);
+        weatherValues.put(WeatherEntry.COLUMN_DATETEXT, TEST_DATE);
+        weatherValues.put(WeatherEntry.COLUMN_DEGREES, 1.1);
+        weatherValues.put(WeatherEntry.COLUMN_HUMIDITY, 1.2);
+        weatherValues.put(WeatherEntry.COLUMN_PRESSURE, 1.3);
+        weatherValues.put(WeatherEntry.COLUMN_MAX_TEMP, 75);
+        weatherValues.put(WeatherEntry.COLUMN_MIN_TEMP, 65);
+        weatherValues.put(WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
+        weatherValues.put(WeatherEntry.COLUMN_WIND_SPEED, 5.5);
+        weatherValues.put(WeatherEntry.COLUMN_WEATHER_ID, 321);
+
+        return weatherValues;
+    }
+
+
+    static void validateCursor(Cursor valueCursor, ContentValues expectedValues) {
+
+        assertTrue(valueCursor.moveToFirst());
+
+        Set<Map.Entry<String, Object>> valueSet = expectedValues.valueSet();
+        for (Map.Entry<String, Object> entry : valueSet) {
+            String columnName = entry.getKey();
+            int idx = valueCursor.getColumnIndex(columnName);
+            assertFalse(idx == -1);
+            String expectedValue = entry.getValue().toString();
+            assertEquals(expectedValue, valueCursor.getString(idx));
+        }
+        valueCursor.close();
+    }
 
 }
