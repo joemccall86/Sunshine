@@ -24,7 +24,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
 import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.data.WeatherContract.LocationEntry;
@@ -48,12 +47,10 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
 
     private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
-    private ArrayAdapter<String> mForecastAdapter;
     private final Context mContext;
 
-    public FetchWeatherTask(Context context, ArrayAdapter<String> forecastAdapter) {
+    public FetchWeatherTask(Context context) {
         mContext = context;
-        mForecastAdapter = forecastAdapter;
     }
 
     /* The date/time conversion code is going to be moved outside the asynctask later,
