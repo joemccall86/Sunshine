@@ -262,7 +262,9 @@ public class WeatherProvider extends ContentProvider {
                 .delete(tableName, selection, selectionArgs);
 
         // notify any registered observers of this change
-        getContext().getContentResolver().notifyChange(uri, null);
+        if (selection == null || affectedRows > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
 
         return affectedRows;
     }
@@ -277,7 +279,9 @@ public class WeatherProvider extends ContentProvider {
                 .update(tableName, contentValues, selection, selectionArgs);
 
         // notify any registered observers of this change
-        getContext().getContentResolver().notifyChange(uri, null);
+        if (affectedRows > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
 
         return affectedRows;
     }
