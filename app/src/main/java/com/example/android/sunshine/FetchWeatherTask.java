@@ -272,7 +272,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
             double cityLatitude = cityCoord.getDouble(OWM_LATITUDE);
             double cityLongitude = cityCoord.getDouble(OWM_LONGITUDE);
 
-            long locationID = addLocation(cityName, locationQuery, cityLatitude, cityLongitude);
+            long locationID = addLocation(locationQuery, cityName, cityLatitude, cityLongitude);
 
             // Get and insert the new weather information into the database
             Vector<ContentValues> cVVector = new Vector<ContentValues>(weatherArray.length());
