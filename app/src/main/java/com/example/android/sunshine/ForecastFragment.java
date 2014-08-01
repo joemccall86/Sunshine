@@ -172,22 +172,15 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 SimpleCursorAdapter simpleCursorAdapter = (SimpleCursorAdapter) parent.getAdapter();
                 Cursor cursor = simpleCursorAdapter.getCursor();
 
-                final String date;
-                final String forecast;
-                final String highTemp;
-                final String lowTemp;
-                final String extraText;
-
-                if (cursor.moveToPosition(position)) {
-                    date = Utility.formatDate(cursor.getString(COL_WEATHER_DATE));
-                    forecast = cursor.getString(COL_WEATHER_DESC);
-                    highTemp = Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MAX_TEMP), isMetric);
-                    lowTemp = Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MIN_TEMP), isMetric);
-
-                    extraText = date + " - " + forecast + " - " + highTemp + " / " + lowTemp;
+                if (null != cursor && cursor.moveToPosition(position)) {
+                    String forecast = String.format("%s - %s - %s/%s",
+                            Utility.formatDate(cursor.getString(COL_WEATHER_DATE)),
+                            cursor.getString(COL_WEATHER_DESC),
+                            Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MAX_TEMP), isMetric),
+                            Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MIN_TEMP), isMetric));
 
                     Intent launchDetailActivityIntent = new Intent(view.getContext(), DetailActivity.class)
-                            .putExtra(Intent.EXTRA_TEXT, extraText);
+                            .putExtra(Intent.EXTRA_TEXT, forecast);
                     startActivity(launchDetailActivityIntent);
 
                 } else {
