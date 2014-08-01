@@ -1,5 +1,6 @@
 package com.example.android.sunshine;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -165,9 +166,33 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Intent launchDetailActivityIntent = new Intent(view.getContext(), DetailActivity.class)
-//                        .putExtra(Intent.EXTRA_TEXT, mForecastAdapter.getItem(position));
-//                startActivity(launchDetailActivityIntent);
+
+                boolean isMetric = Utility.isMetric(getActivity());
+
+                SimpleCursorAdapter simpleCursorAdapter = (SimpleCursorAdapter) parent.getAdapter();
+                Cursor cursor = simpleCursorAdapter.getCursor();
+
+                final String date;
+                final String forecast;
+                final String highTemp;
+                final String lowTemp;
+                final String extraText;
+
+                if (cursor.moveToPosition(position)) {
+                    date = Utility.formatDate(cursor.getString(COL_WEATHER_DATE));
+                    forecast = cursor.getString(COL_WEATHER_DESC);
+                    highTemp = Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MAX_TEMP), isMetric);
+                    lowTemp = Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MIN_TEMP), isMetric);
+
+                    extraText = date + " - " + forecast + " - " + highTemp + " / " + lowTemp;
+
+                    Intent launchDetailActivityIntent = new Intent(view.getContext(), DetailActivity.class)
+                            .putExtra(Intent.EXTRA_TEXT, extraText);
+                    startActivity(launchDetailActivityIntent);
+
+                } else {
+                    throw new UnsupportedOperationException("Could not move the cursor to position " + position);
+                }
             }
         });
 
