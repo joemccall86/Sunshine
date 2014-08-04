@@ -174,20 +174,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                boolean isMetric = Utility.isMetric(getActivity());
-
                 SimpleCursorAdapter simpleCursorAdapter = (SimpleCursorAdapter) parent.getAdapter();
                 Cursor cursor = simpleCursorAdapter.getCursor();
 
                 if (null != cursor && cursor.moveToPosition(position)) {
-                    String forecast = String.format("%s - %s - %s/%s",
-                            Utility.formatDate(cursor.getString(COL_WEATHER_DATE)),
-                            cursor.getString(COL_WEATHER_DESC),
-                            Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MAX_TEMP), isMetric),
-                            Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MIN_TEMP), isMetric));
+                    String dateStr = Utility.formatDate(cursor.getString(COL_WEATHER_DATE));
 
                     Intent launchDetailActivityIntent = new Intent(view.getContext(), DetailActivity.class)
-                            .putExtra(Intent.EXTRA_TEXT, forecast);
+                            .putExtra(Intent.EXTRA_TEXT, dateStr);
                     startActivity(launchDetailActivityIntent);
 
                 } else {
