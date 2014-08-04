@@ -8,7 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.android.sunshine.data.WeatherContract;
 
@@ -137,8 +136,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                SimpleCursorAdapter simpleCursorAdapter = (SimpleCursorAdapter) parent.getAdapter();
-                Cursor cursor = simpleCursorAdapter.getCursor();
+                CursorAdapter cursorAdapter = (CursorAdapter) parent.getAdapter();
+                Cursor cursor = cursorAdapter.getCursor();
 
                 if (null != cursor && cursor.moveToPosition(position)) {
                     String dateStr = cursor.getString(COL_WEATHER_DATE);
@@ -195,7 +194,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         mForecastAdapter.swapCursor(data);
 
-        if (!mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
+        if (mLocation == null || !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
             getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
         }
     }

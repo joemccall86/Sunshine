@@ -1,5 +1,6 @@
 package com.example.android.sunshine;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -80,5 +81,9 @@ public class SettingsActivity extends PreferenceActivity
             preference.setSummary(stringValue);
         }
         return true;
+    }
+
+    public static boolean isMetric(Context context) {
+        return Utility.isMetric(context);
     }
 }
