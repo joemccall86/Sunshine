@@ -8,49 +8,48 @@
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:padding="16dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-            
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:src="@drawable/ic_launcher"
             android:paddingLeft="16dp"/>
-        
+
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="center"
             android:layout_weight="1"
             android:padding="10dp">
-            
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/list_item_date_textview"
                 android:text="Tomorrow"/>
-            
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/list_item_forecast_textview"
                 android:text="Clear"/>
-            
+
         </LinearLayout>
-        
+
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="center"
             android:layout_weight="0"
             android:padding="10dp">
-            
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -62,9 +61,9 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/list_item_low_textview"
                 android:text="80\u00b0"/>
-            
+
         </LinearLayout>
-        
+
     </LinearLayout>
 
 </LinearLayout>
