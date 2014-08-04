@@ -114,6 +114,11 @@ public class DetailActivity extends ActionBarActivity {
 
         }
 
+        private TextView dateTextView;
+        private TextView forecastTextView;
+        private TextView highTextView;
+        private TextView lowTextView;
+
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
@@ -123,8 +128,10 @@ public class DetailActivity extends ActionBarActivity {
 
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
-            TextView textView = (TextView) rootView.findViewById(R.id.detail_text);
-            textView.setText(mDateStr);
+            dateTextView = (TextView) rootView.findViewById(R.id.detail_date_textview);
+            forecastTextView = (TextView) rootView.findViewById(R.id.detail_forecast_textview);
+            highTextView = (TextView) rootView.findViewById(R.id.detail_high_textview);
+            lowTextView = (TextView) rootView.findViewById(R.id.detail_low_textview);
 
             return rootView;
         }
@@ -188,16 +195,16 @@ public class DetailActivity extends ActionBarActivity {
             if (data.moveToFirst()) {
 
                 boolean isMetric = Utility.isMetric(getActivity());
-                String location = data.getString(COL_WEATHER_DATE);
+                String date = data.getString(COL_WEATHER_DATE);
                 String forecast = data.getString(COL_WEATHER_DESC);
                 String highTemp = Utility.formatTemperature(data.getDouble(COL_WEATHER_MAX_TEMP), isMetric);
                 String lowTemp = Utility.formatTemperature(data.getDouble(COL_WEATHER_MIN_TEMP), isMetric);
 
-                Log.v(LOG_TAG, String.format("%s - %s - %s/%s",
-                        location,
-                        forecast,
-                        highTemp,
-                        lowTemp));
+                dateTextView.setText(Utility.formatDate(date));
+                forecastTextView.setText(forecast);
+                highTextView.setText(highTemp);
+                lowTextView.setText(lowTemp);
+
             } else {
                 Log.e(LOG_TAG, "No data found for cursor!");
             }
