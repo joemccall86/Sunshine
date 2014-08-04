@@ -181,7 +181,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                     String dateStr = cursor.getString(COL_WEATHER_DATE);
 
                     Intent launchDetailActivityIntent = new Intent(view.getContext(), DetailActivity.class)
-                            .putExtra(Intent.EXTRA_TEXT, dateStr);
+                            .putExtra(DetailActivity.DATE_KEY, dateStr);
                     startActivity(launchDetailActivityIntent);
 
                 } else {
