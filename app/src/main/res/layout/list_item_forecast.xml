@@ -19,6 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@drawable/ic_launcher"
+            android:id="@+id/list_item_icon"
             android:paddingLeft="16dp"/>
         
         <LinearLayout
