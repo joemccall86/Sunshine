@@ -55,8 +55,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/detail_icon"
-                        android:src="@drawable/ic_launcher"/>
+                        android:id="@+id/detail_icon"/>
 
                     <TextView
                         android:layout_width="wrap_content"
