@@ -32,8 +32,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
 
     public static final String DATE_KEY = "forecast_date";
+    private static final String LOCATION_KEY = "location";
 
     private String mForecastStr;
+
+    private String mLocation;
 
     private static final int DETAIL_LOADER = 0;
 
@@ -112,8 +115,33 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            mLocation = savedInstanceState.getString(LOCATION_KEY);
+        }
+
+        Intent intent = getActivity().getIntent();
+        if (intent != null && intent.hasExtra(DetailActivity.DATE_KEY)) {
+            getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Intent intent = getActivity().getIntent();
+        if (intent != null && intent.hasExtra(DetailActivity.DATE_KEY) &&
+                mLocation != null &&
+                !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(LOCATION_KEY, mLocation);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
