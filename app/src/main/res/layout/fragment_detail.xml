@@ -11,20 +11,19 @@
             <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_day_name_textview"
-                android:text="Today"/>
+                android:id="@+id/detail_day_name_textview"/>
 
             <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_date_textview"
-                android:text="August 4"/>
+                android:id="@+id/detail_date_textview"/>
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="16dp">
+                android:paddingTop="16dp"
+                android:baselineAligned="false">
 
                 <LinearLayout
                     android:orientation="vertical"
@@ -35,14 +34,12 @@
                     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/detail_high_textview"
-                        android:text="90\u00b0"/>
+                        android:id="@+id/detail_high_textview"/>
 
                     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/detail_low_textview"
-                        android:text="81\u00b0"/>
+                        android:id="@+id/detail_low_textview"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -55,12 +52,12 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/detail_icon"/>
+                        android:id="@+id/detail_icon"
+                        android:contentDescription="@string/weather_icon_detail" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Clear"
                         android:id="@+id/detail_forecast_textview" />
                 </LinearLayout>
             </LinearLayout>
@@ -68,20 +65,17 @@
             <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_humidity_textview"
-                android:text="Humidity: 84%"/>
+                android:id="@+id/detail_humidity_textview"/>
 
             <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_wind_textview"
-                android:text="Wind: 2 mi/h NW"/>
+                android:id="@+id/detail_wind_textview"/>
 
             <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/detail_pressure_textview"
-                android:text="Pressure: 1017 kPa"/>
+                android:id="@+id/detail_pressure_textview"/>
 
         </LinearLayout>
 

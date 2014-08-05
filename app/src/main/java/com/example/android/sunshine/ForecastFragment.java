@@ -53,6 +53,19 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private ForecastAdapter mForecastAdapter;
 
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callback {
+        /**
+         * Callback for when an item has been selected.
+         */
+        public void onItemSelected(String date);
+    }
+
+
     public ForecastFragment() {
     }
 
@@ -144,9 +157,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 if (null != cursor && cursor.moveToPosition(position)) {
                     String dateStr = cursor.getString(COL_WEATHER_DATE);
 
-                    Intent launchDetailActivityIntent = new Intent(view.getContext(), DetailActivity.class)
-                            .putExtra(DetailActivity.DATE_KEY, dateStr);
-                    startActivity(launchDetailActivityIntent);
+                    Callback callback = (Callback) getActivity();
+                    callback.onItemSelected(dateStr);
 
                 } else {
                     throw new UnsupportedOperationException("Could not move the cursor to position " + position);
