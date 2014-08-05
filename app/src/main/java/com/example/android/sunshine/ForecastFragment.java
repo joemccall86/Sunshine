@@ -29,6 +29,7 @@ import java.util.Date;
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String LOG_TAG = ForecastFragment.class.getSimpleName();
+    private static final String POSITION_KEY = "position";
 
     private String mLocation;
     private static final int FORECAST_LOADER = 0;
@@ -52,6 +53,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public static final int COL_LOCATION_SETTING = 6;
 
     private ForecastAdapter mForecastAdapter;
+
+
+    private int mPosition = -1;
+    private ListView mListView;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -119,6 +124,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(POSITION_KEY, mPosition);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -143,11 +154,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        mListView = (ListView) rootView.findViewById(R.id.listview_forecast);
 
-        listView.setAdapter(mForecastAdapter);
+        mListView.setAdapter(mForecastAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -165,6 +176,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 }
             }
         });
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(POSITION_KEY)) {
+            mPosition = savedInstanceState.getInt(POSITION_KEY);
+        }
 
         return rootView;
     }
@@ -207,6 +222,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         Log.v(LOG_TAG, "onLoadFinished called");
 
         mForecastAdapter.swapCursor(data);
+
+        if (mPosition > 0) {
+            mListView.setSelection(mPosition);
+        }
 
         if (mLocation == null || !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
             getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
