@@ -166,10 +166,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 Cursor cursor = cursorAdapter.getCursor();
 
                 if (null != cursor && cursor.moveToPosition(position)) {
-                    String dateStr = cursor.getString(COL_WEATHER_DATE);
 
-                    Callback callback = (Callback) getActivity();
-                    callback.onItemSelected(dateStr);
+                    ((Callback) getActivity())
+                            .onItemSelected(cursor.getString(COL_WEATHER_DATE));
 
                 } else {
                     throw new UnsupportedOperationException("Could not move the cursor to position " + position);

@@ -34,15 +34,15 @@ public class DetailActivity extends ActionBarActivity {
         if (savedInstanceState == null) {
             String date = getIntent().getStringExtra(DATE_KEY);
 
-            DetailFragment detailFragment = new DetailFragment();
+            DetailFragment fragment = new DetailFragment();
 
             Bundle args = new Bundle();
-            args.putString(DetailFragment.DATE_KEY, date);
+            args.putString(DATE_KEY, date);
 
-            detailFragment.setArguments(args);
+            fragment.setArguments(args);
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.weather_detail_container, detailFragment)
+                    .add(R.id.weather_detail_container, fragment)
                     .commit();
         }
     }

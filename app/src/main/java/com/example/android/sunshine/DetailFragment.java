@@ -31,12 +31,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
 
-    public static final String DATE_KEY = "forecast_date";
     private static final String LOCATION_KEY = "location";
 
     private String mForecastStr;
-
     private String mLocation;
+    private String mDateStr;
 
     private static final int DETAIL_LOADER = 0;
 
@@ -70,6 +69,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mDateStr = arguments.getString(DetailActivity.DATE_KEY);
+        }
+
+        if (savedInstanceState != null) {
+            mLocation = savedInstanceState.getString(LOCATION_KEY);
+        }
+
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         friendlyDateView = (TextView) rootView.findViewById(R.id.detail_day_name_textview);
         dateView = (TextView) rootView.findViewById(R.id.detail_date_textview);
@@ -121,7 +130,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             mLocation = savedInstanceState.getString(LOCATION_KEY);
         }
 
-        if (getArguments() != null && getArguments().containsKey(DATE_KEY)) {
+        if (getArguments() != null && getArguments().containsKey(DetailActivity.DATE_KEY)) {
             getLoaderManager().initLoader(DETAIL_LOADER, null, this);
         }
     }
@@ -129,8 +138,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onResume() {
         super.onResume();
-        if (getArguments() != null && getArguments().containsKey(DATE_KEY) &&
-                mLocation != null &&
+        if (mLocation != null &&
                 !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
             getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
         }
@@ -144,15 +152,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.v(LOG_TAG, "In onCreateLoader");
-
-        String forecastDate = getArguments().getString(DATE_KEY);
 
         // Sort order:  Ascending, by date.
         String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATETEXT + " ASC";
 
+        mLocation = Utility.getPreferredLocation(getActivity());
+
         Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
-                Utility.getPreferredLocation(getActivity()), forecastDate);
+                mLocation, mDateStr);
         Log.v(LOG_TAG, weatherForLocationUri.toString());
 
         // Now create and return a CursorLoader that will take care of

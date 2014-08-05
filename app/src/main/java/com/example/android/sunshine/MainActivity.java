@@ -25,9 +25,14 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
 
             mTwoPane = true;
 
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.weather_detail_container, new DetailFragment())
-                    .commit();
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.weather_detail_container, new DetailFragment())
+                        .commit();
+            }
+
+        } else {
+            mTwoPane = false;
         }
 
         Log.v(LOG_TAG, "onCreate");
@@ -110,21 +115,21 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
     public void onItemSelected(String date) {
         if (mTwoPane) {
 
-            DetailFragment detailFragment = new DetailFragment();
 
             Bundle args = new Bundle();
-            args.putString(DetailFragment.DATE_KEY, date);
+            args.putString(DetailActivity.DATE_KEY, date);
 
-            detailFragment.setArguments(args);
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(args);
 
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.weather_detail_container, detailFragment)
+                    .replace(R.id.weather_detail_container, fragment)
                     .commit();
         } else {
             // just on a phone, so launch the detail activity
-            Intent launchDetailActivityIntent = new Intent(this, DetailActivity.class)
+            Intent intent = new Intent(this, DetailActivity.class)
                     .putExtra(DetailActivity.DATE_KEY, date);
-            startActivity(launchDetailActivityIntent);
+            startActivity(intent);
         }
     }
 }
