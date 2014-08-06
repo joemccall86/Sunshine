@@ -1,5 +1,8 @@
 package com.example.android.sunshine;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,6 +26,7 @@ import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.service.SunshineService;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -128,10 +132,21 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private void updateWeather() {
-        String location = Utility.getPreferredLocation(getActivity());
-        Intent sunshineService = new Intent(getActivity(), SunshineService.class)
-                .putExtra(SunshineService.LOCATION_QUERY_EXTRA, location);
-        getActivity().startService(sunshineService);
+
+        Intent alarmIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
+        alarmIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, mLocation);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 0, alarmIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) getActivity()
+                .getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager != null) {
+            alarmManager.set(AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(5),
+                    pendingIntent);
+        } else {
+            Log.e(LOG_TAG, "alarm manager not found");
+        }
     }
 
     @Override
