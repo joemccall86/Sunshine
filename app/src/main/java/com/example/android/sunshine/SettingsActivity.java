@@ -1,7 +1,6 @@
 package com.example.android.sunshine;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -9,7 +8,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
 import com.example.android.sunshine.data.WeatherContract;
-import com.example.android.sunshine.service.SunshineService;
+import com.example.android.sunshine.sync.SunshineSyncAdapter;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings.
@@ -61,10 +60,7 @@ public class SettingsActivity extends PreferenceActivity
 
         if (!mBindingPreference) {
             if (preference.getKey().equals(getString(R.string.pref_location_key))) {
-                String location = value.toString();
-                Intent sunshineService = new Intent(this, SunshineService.class)
-                        .putExtra(SunshineService.LOCATION_QUERY_EXTRA, location);
-                startService(sunshineService);
+                SunshineSyncAdapter.syncImmediately(this);
             } else {
                 // notify code that weather may be impacted
                 getContentResolver().notifyChange(WeatherContract.WeatherEntry.CONTENT_URI, null);

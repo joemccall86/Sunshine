@@ -45,10 +45,6 @@
             android:syncable="true"
             android:exported="false" />
 
-        <service android:name=".service.SunshineService"/>
-        <receiver android:name=".service.SunshineService$AlarmReceiver"
-            />
-
         <service android:name=".sync.SunshineAuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>

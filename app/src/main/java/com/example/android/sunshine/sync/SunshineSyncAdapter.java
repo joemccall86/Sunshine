@@ -8,9 +8,11 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
@@ -35,6 +37,8 @@ import java.util.Vector;
 public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static final String LOG_TAG = SunshineSyncAdapter.class.getSimpleName();
+    public static final int SYNC_INTERVAL = 60 * 180;
+    public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
 
     public SunshineSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -46,6 +50,22 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.requestSync(getSyncAccount(context),
                 context.getString(R.string.content_authority), bundle);
+    }
+
+    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
+
+        Account account = getSyncAccount(context);
+        String authority = context.getString(R.string.content_authority);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // we can enable inexact timers in our periodic sync
+            SyncRequest request = new SyncRequest.Builder().
+                    syncPeriodic(syncInterval, flexTime).
+                    setSyncAdapter(account, authority).build();
+            ContentResolver.requestSync(request);
+        }
+
+        ContentResolver.addPeriodicSync(account, authority, new Bundle(), syncInterval);
     }
 
     public static Account getSyncAccount(Context context) {
@@ -60,6 +80,9 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             if (!accountManager.addAccountExplicitly(newAccount, "", null)) {
                 return null;
             }
+
+            onAccountCreated(newAccount, context);
+
         }
 
         return newAccount;
@@ -190,7 +213,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                     WeatherContract.LocationEntry.CONTENT_URI,
                     new String[]{WeatherContract.LocationEntry._ID},
                     WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
-                    new String[] {locationQuery},
+                    new String[]{locationQuery},
                     null
             );
 
@@ -292,6 +315,19 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             e.printStackTrace();
             syncResult.databaseError = true;
         }
+    }
+
+    private static void onAccountCreated(Account newAccount, Context context) {
+
+        SunshineSyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
+
+        ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
+
+        syncImmediately(context);
+    }
+
+    public static void initializeSyncAdapter(Context context) {
+        getSyncAccount(context);
     }
 
 }
