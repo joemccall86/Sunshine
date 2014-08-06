@@ -19,6 +19,9 @@
     <string name="share_item">Share Weather</string>
     <string name="action_share">Share</string>
 
+    <string name="sync_account_type">sunshine.example.com</string>
+    <string name="content_authority">com.example.android.sunshine</string>
+
     <!-- Date label when displaying today's weather forecast [CHAR LIMIT=20] -->
     <string name="today">Today</string>
 
