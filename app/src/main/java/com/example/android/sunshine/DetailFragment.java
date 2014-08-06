@@ -80,7 +80,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         }
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
-        friendlyDateView = (TextView) rootView.findViewById(R.id.detail_day_name_textview);
+        friendlyDateView = (TextView) rootView.findViewById(R.id.detail_day_textview);
         dateView = (TextView) rootView.findViewById(R.id.detail_date_textview);
         descriptionView = (TextView) rootView.findViewById(R.id.detail_forecast_textview);
         highTempView = (TextView) rootView.findViewById(R.id.detail_high_textview);
