@@ -18,13 +18,19 @@ public class ForecastAdapter extends CursorAdapter {
     private static final int VIEW_TYPE_TODAY = 0;
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
 
+    private boolean mUseTodayLayout;
+
+    public void setUseTodayLayout(boolean mUseTodayLayout) {
+        this.mUseTodayLayout = mUseTodayLayout;
+    }
+
     public ForecastAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
     }
 
     @Override
     public int getItemViewType(int position) {
-        return (position == 0) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
+        return (mUseTodayLayout && position == 0) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
     }
 
     @Override
@@ -62,8 +68,18 @@ public class ForecastAdapter extends CursorAdapter {
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
-        // Use placeholder image for now
-        viewHolder.iconView.setImageResource(R.drawable.ic_launcher);
+
+        int viewType = getItemViewType(cursor.getPosition());
+
+        final int weatherIcon;
+        if (viewType == VIEW_TYPE_FUTURE_DAY) {
+            weatherIcon = Utility.getIconResourceForWeatherCondition(weatherId);
+        } else {
+            weatherIcon = Utility.getArtResourceForWeatherCondition(weatherId);
+        }
+
+        viewHolder.iconView.setImageResource(weatherIcon);
+
 
         // Read date from cursor
         String dateString = cursor.getString(ForecastFragment.COL_WEATHER_DATE);
@@ -85,18 +101,6 @@ public class ForecastAdapter extends CursorAdapter {
         // Read low temperature from cursor
         float low = cursor.getFloat(ForecastFragment.COL_WEATHER_MIN_TEMP);
         viewHolder.lowTempView.setText(Utility.formatTemperature(context, low, isMetric));
-
-
-        int viewType = getItemViewType(cursor.getPosition());
-
-        final int weatherIcon;
-        if (viewType == VIEW_TYPE_FUTURE_DAY) {
-            weatherIcon = Utility.getIconResourceForWeatherCondition(weatherId);
-        } else {
-            weatherIcon = Utility.getArtResourceForWeatherCondition(weatherId);
-        }
-
-        viewHolder.iconView.setImageResource(weatherIcon);
     }
 
     /**
