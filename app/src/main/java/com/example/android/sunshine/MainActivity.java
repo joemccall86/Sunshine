@@ -17,6 +17,7 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private boolean mTwoPane;
+    private ForecastFragment mForecastFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +38,10 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
             mTwoPane = false;
         }
 
-        ForecastFragment forecastFragment = (ForecastFragment) getSupportFragmentManager()
+        mForecastFragment = (ForecastFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_forecast);
 
-        forecastFragment.setUseTodayLayout(!mTwoPane);
+        mForecastFragment.setUseTodayLayout(!mTwoPane);
 
 
 
@@ -97,30 +98,9 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
             Intent settingsActivityIntent = new Intent(this, SettingsActivity.class);
             startActivity(settingsActivityIntent);
             return true;
-        } else if (id == R.id.action_map) {
-            showCurrentLocationOnMap();
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void showCurrentLocationOnMap() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String location = sharedPreferences.getString(
-                getString(R.string.pref_location_key),
-                getString(R.string.pref_location_default)
-        );
-
-        Uri uri = Uri.parse("geo:0,0").buildUpon()
-                .appendQueryParameter("q", location)
-                .build();
-
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(uri);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-        }
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.example.android.sunshine;
 
-import android.accounts.Account;
-import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,6 +43,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
             WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
             WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING,
+            WeatherContract.LocationEntry.COLUMN_COORD_LAT,
+            WeatherContract.LocationEntry.COLUMN_COORD_LONG,
+
     };
 
     public static final int COL_WEATHER_TABLE_ID = 0;
@@ -53,6 +55,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public static final int COL_WEATHER_MIN_TEMP = 4;
     public static final int COL_WEATHER_ID = 5;
     public static final int COL_LOCATION_SETTING = 6;
+    public static final int COL_COORD_LAT = 7;
+    public static final int COL_COORD_LONG = 8;
 
     private ForecastAdapter mForecastAdapter;
     private boolean mUseTodayLayout;
@@ -89,6 +93,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
+
+        updateWeather();
     }
 
     @Override
@@ -100,9 +106,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-        if (id == R.id.action_refresh) {
+//        if (id == R.id.action_refresh) {
+//
+//            updateWeather();
+//            return true;
+//        }
 
-            updateWeather();
+        if (id == R.id.action_map) {
+            openPreferredLocationInMap();
             return true;
         }
 
@@ -246,5 +257,31 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.v(LOG_TAG, "onLoaderReset called");
         mForecastAdapter.swapCursor(null);
+    }
+
+    public void openPreferredLocationInMap() {
+
+
+        // get the location from the content provider
+        Cursor c = mForecastAdapter.getCursor();
+
+        if (c != null) {
+            c.moveToPosition(0);
+
+            double latitude = c.getDouble(c.getColumnIndex(WeatherContract.LocationEntry.COLUMN_COORD_LAT));
+            double longitude = c.getDouble(c.getColumnIndex(WeatherContract.LocationEntry.COLUMN_COORD_LONG));
+
+            Log.v(LOG_TAG, "Found coordinates " + latitude + ", " + longitude + " from db");
+
+            Uri uri = Uri.parse(String.format("geo:%f,%f", latitude, longitude));
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(uri);
+            if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivity(intent);
+            }
+        } else {
+            Log.v(LOG_TAG, "Could not retrieve location lat/lon from db");
+        }
     }
 }
