@@ -39,7 +39,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
@@ -120,6 +123,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
 
         String locationQuery = Utility.getPreferredLocation(getContext());
+
+        deleteOldData(provider, locationQuery);
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -237,31 +242,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
             Log.v(LOG_TAG, "inserting " + cityName + ", with coord: " + cityLatitude + ", " + cityLongitude);
 
-            Cursor cursor = provider.query(
-                    WeatherContract.LocationEntry.CONTENT_URI,
-                    new String[]{WeatherContract.LocationEntry._ID},
-                    WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
-                    new String[]{locationQuery},
-                    null
-            );
-
-            final long locationID;
-            if (cursor.moveToFirst()) {
-                Log.v(LOG_TAG, "found it in the database!");
-                int columnId = cursor.getColumnIndex(WeatherContract.LocationEntry._ID);
-                locationID = cursor.getLong(columnId);
-            } else {
-                // The location does not yet exist, so add it
-                ContentValues values = new ContentValues();
-                values.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, locationQuery);
-                values.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
-                values.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, cityLatitude);
-                values.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, cityLongitude);
-
-                Uri uri = provider.insert(WeatherContract.LocationEntry.CONTENT_URI, values);
-
-                locationID = ContentUris.parseId(uri);
-            }
+            final long locationID = addLocation(provider, locationQuery, cityName, cityLatitude, cityLongitude);
 
             // Get and insert the new weather information into the database
             Vector<ContentValues> cVVector = new Vector<ContentValues>(weatherArray.length());
@@ -337,6 +318,31 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                 final int inserted = provider.bulkInsert(WeatherContract.WeatherEntry.CONTENT_URI, contentValuesArray);
 
                 Log.v(LOG_TAG, "Inserted " + inserted + " values into the db");
+
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.DATE, -1);
+                String yesterdayDate = WeatherContract.getDbDateString(cal.getTime());
+//
+//                Cursor c = provider.query(WeatherContract.WeatherEntry.CONTENT_URI,
+//                        null,
+//                        WeatherContract.WeatherEntry.COLUMN_DATETEXT + " <= ?",
+//                        new String[] { yesterdayDate },
+//                        null);
+//
+//                if (c.moveToFirst()) {
+//                    String values = "";
+//                    for (String key: c.getColumnNames()) {
+//                        values += String.format("[%s: %s] ", key, c.getString(c.getColumnIndex(key)));
+//                    }
+//
+//                    Log.v(LOG_TAG, "Item to delete = " + values);
+//                }
+
+                final int deleted = getContext().getContentResolver().delete(WeatherContract.WeatherEntry.CONTENT_URI,
+                        WeatherContract.WeatherEntry.COLUMN_DATETEXT + " <= ?",
+                        new String[]{yesterdayDate});
+
+                Log.v(LOG_TAG, "Deleted " + deleted + " old values from the db");
             }
 
         } catch (JSONException e) {
@@ -347,6 +353,46 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             e.printStackTrace();
             syncResult.databaseError = true;
         }
+    }
+
+    private void deleteOldData(ContentProviderClient provider, String locationQuery) {
+
+    }
+
+    private long addLocation(ContentProviderClient provider,
+                             String locationQuery,
+                             String cityName,
+                             double cityLatitude,
+                             double cityLongitude) throws RemoteException {
+
+        Cursor cursor = provider.query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                new String[]{WeatherContract.LocationEntry._ID},
+                WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING + " = ?",
+                new String[]{locationQuery},
+                null
+        );
+
+
+        final long locationID;
+        if (cursor.moveToFirst()) {
+            Log.v(LOG_TAG, "found it in the database!");
+            int columnId = cursor.getColumnIndex(WeatherContract.LocationEntry._ID);
+            locationID = cursor.getLong(columnId);
+        } else {
+            // The location does not yet exist, so add it
+            ContentValues values = new ContentValues();
+            values.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, locationQuery);
+            values.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, cityName);
+            values.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, cityLatitude);
+            values.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, cityLongitude);
+
+            Uri uri = provider.insert(WeatherContract.LocationEntry.CONTENT_URI, values);
+
+            locationID = ContentUris.parseId(uri);
+        }
+
+        return locationID;
     }
 
     private void notifyWeather(double high, double low, String description, int weatherId) {
