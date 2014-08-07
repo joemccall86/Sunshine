@@ -21,9 +21,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
+import com.activeandroid.ActiveAndroid;
 import com.example.android.sunshine.data.WeatherContract.LocationEntry;
 import com.example.android.sunshine.data.WeatherContract.WeatherEntry;
-import com.example.android.sunshine.data.WeatherDbHelper;
 
 import java.util.Map;
 import java.util.Set;
@@ -33,9 +33,8 @@ public class TestDb extends AndroidTestCase {
     public static final String LOG_TAG = TestDb.class.getSimpleName();
 
     public void testCreateDb() throws Throwable {
-        mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
-        SQLiteDatabase db = new WeatherDbHelper(
-                this.mContext).getWritableDatabase();
+        mContext.deleteDatabase("weather-aa.db");
+        SQLiteDatabase db = ActiveAndroid.getDatabase();
         assertEquals(true, db.isOpen());
         db.close();
     }
@@ -44,8 +43,7 @@ public class TestDb extends AndroidTestCase {
 
         // If there's an error in those massive SQL table creation Strings,
         // errors will be thrown here when you try to get a writable database.
-        WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        SQLiteDatabase db = ActiveAndroid.getDatabase();
 
         ContentValues testValues = createNorthPoleLocationValues();
 
@@ -90,8 +88,6 @@ public class TestDb extends AndroidTestCase {
         );
 
         validateCursor(weatherCursor, weatherValues);
-
-        dbHelper.close();
     }
 
     static ContentValues createWeatherValues(long locationRowId) {
