@@ -18,4 +18,9 @@
         android:entryValues="@array/pref_units_values"
         android:defaultValue="@string/pref_units_metric" />
 
+    <CheckBoxPreference
+        android:title="@string/pref_disable_notifications_label"
+        android:key="@string/pref_disable_notifications_key"
+        android:defaultValue="false"/>
+
 </PreferenceScreen>

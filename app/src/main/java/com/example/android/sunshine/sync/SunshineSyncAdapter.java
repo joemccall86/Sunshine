@@ -2,12 +2,16 @@ package com.example.android.sunshine.sync;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
@@ -15,8 +19,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
+import com.example.android.sunshine.MainActivity;
 import com.example.android.sunshine.R;
 import com.example.android.sunshine.Utility;
 import com.example.android.sunshine.data.WeatherContract;
@@ -33,6 +41,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
@@ -40,9 +49,28 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final int SYNC_INTERVAL = 60 * 180;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
 
+    private Context mContext;
+
     public SunshineSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
+
+        mContext = context;
     }
+
+    private static final String[] NOTIFY_WEATHER_PROJECTION = new String[] {
+            WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
+            WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
+            WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+            WeatherContract.WeatherEntry.COLUMN_SHORT_DESC
+    };
+
+    // these indices must match the projection
+    private static int INDEX_WEATHER_ID = 0;
+    private static int INDEX_MAX_TEMP   = 1;
+    private static int INDEX_MIN_TEMP   = 2;
+    private static int INDEX_SHORT_DESC = 3;
+
+    private static final int WEATHER_NOTIFICATION_ID = 3004;
 
     public static void syncImmediately(Context context) {
         Bundle bundle = new Bundle();
@@ -294,6 +322,10 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                 weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, weatherId);
 
                 cVVector.add(weatherValues);
+
+                if (i == 0) {
+                    notifyWeather(high, low, description, weatherId);
+                }
             }
 
             if (cVVector.size() > 0) {
@@ -314,6 +346,68 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e(LOG_TAG, e.getLocalizedMessage(), e);
             e.printStackTrace();
             syncResult.databaseError = true;
+        }
+    }
+
+    private void notifyWeather(double high, double low, String description, int weatherId) {
+        //checking the last update and notify if it' the first of the day
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+//        String displayNotificationsKey = mContext.getString(R.string.pref_enable_notifications_key);
+
+        // If notifications are enabled in preferences...
+//        boolean defaultForNotifications =
+//                Boolean.parseBoolean(mContext.getString(R.string.pref_enable_notifications_default));
+//        boolean notificationsEnabled =
+//                prefs.getBoolean(displayNotificationsKey, defaultForNotifications);
+
+        // AND it's been at least 24h since the last notification was displayed
+        String lastNotificationKey = mContext.getString(R.string.pref_last_notification);
+        long lastNotification = prefs.getLong(lastNotificationKey, 0);
+
+        if ((System.currentTimeMillis() - lastNotification >= TimeUnit.DAYS.toMillis(1))) {
+            // Last sync was more than 1 day ago, let's send a notification with the weather.
+
+            int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
+            String title = mContext.getString(R.string.app_name);
+
+            boolean isMetric = Utility.isMetric(mContext);
+
+            // Define the text of the forecast.
+            String contentText = String.format(mContext.getString(R.string.format_notification),
+                    description,
+                    Utility.formatTemperature(mContext, high, isMetric),
+                    Utility.formatTemperature(mContext, low, isMetric));
+
+            // NotificationCompatBuilder is a very convenient way to build backward-compatible
+            // notifications.  Just throw in some data.
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(mContext)
+                            .setSmallIcon(iconId)
+                            .setContentTitle(title)
+                            .setContentText(contentText);
+
+            // Make something interesting happen when the user clicks on the notification.
+            // In this case, opening the app is sufficient.
+            Intent resultIntent = new Intent(mContext, MainActivity.class);
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
+            stackBuilder.addParentStack(MainActivity.class);
+            stackBuilder.addNextIntent(resultIntent);
+            PendingIntent resultPendingIntent =
+                    stackBuilder.getPendingIntent(
+                            0,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    );
+            mBuilder.setContentIntent(resultPendingIntent);
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getContext()
+                            .getSystemService(Context.NOTIFICATION_SERVICE);
+            // mId allows you to update the notification later on.
+            mNotificationManager.notify(WEATHER_NOTIFICATION_ID, mBuilder.build());
+
+            //refreshing last sync
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putLong(lastNotificationKey, System.currentTimeMillis());
+            editor.commit();
         }
     }
 
