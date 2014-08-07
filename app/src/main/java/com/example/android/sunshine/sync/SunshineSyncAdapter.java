@@ -352,19 +352,21 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     private void notifyWeather(double high, double low, String description, int weatherId) {
         //checking the last update and notify if it' the first of the day
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-//        String displayNotificationsKey = mContext.getString(R.string.pref_enable_notifications_key);
+        String disableDisplayNotificationsKey = mContext.getString(R.string.pref_enable_notifications_key);
 
         // If notifications are enabled in preferences...
-//        boolean defaultForNotifications =
-//                Boolean.parseBoolean(mContext.getString(R.string.pref_enable_notifications_default));
-//        boolean notificationsEnabled =
-//                prefs.getBoolean(displayNotificationsKey, defaultForNotifications);
+        boolean defaultForNotifications =
+                Boolean.parseBoolean(mContext.getString(R.string.pref_enable_notifications_default));
+        boolean notificationsEnabled =
+                prefs.getBoolean(disableDisplayNotificationsKey, defaultForNotifications);
 
         // AND it's been at least 24h since the last notification was displayed
         String lastNotificationKey = mContext.getString(R.string.pref_last_notification);
         long lastNotification = prefs.getLong(lastNotificationKey, 0);
 
-        if ((System.currentTimeMillis() - lastNotification >= TimeUnit.DAYS.toMillis(1))) {
+        boolean shouldNotify = notificationsEnabled &&
+                (System.currentTimeMillis() - lastNotification >= TimeUnit.DAYS.toMillis(1));
+        if (shouldNotify) {
             // Last sync was more than 1 day ago, let's send a notification with the weather.
 
             int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
@@ -407,7 +409,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             //refreshing last sync
             SharedPreferences.Editor editor = prefs.edit();
             editor.putLong(lastNotificationKey, System.currentTimeMillis());
-            editor.commit();
+            editor.apply();
         }
     }
 

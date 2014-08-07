@@ -64,7 +64,12 @@
     <!-- Sync adapter stuff -->
     <string name="sync_account_type">sunshine.example.com</string>
     <string name="content_authority">com.example.android.sunshine</string>
-    <string name="pref_disable_notifications_label">Turn off notifications</string>
-    <string name="pref_disable_notifications_key">turn_off_notifications</string>
+
+
+    <string name="pref_enable_notifications_label">Weather Notifications</string>
+    <string name="pref_enable_notifications_key" translatable="false">turn_off_notifications</string>
+    <string name="pref_enable_notifications_default" translatable="false">false</string>
+    <string name="pref_enable_notifications_true">Not Enabled</string>
+    <string name="pref_enable_notifications_false">Enabled</string>
 
 </resources>
