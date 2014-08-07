@@ -25,6 +25,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
+import com.activeandroid.ActiveAndroid;
+
 public class WeatherProvider extends ContentProvider {
 
     private static final int WEATHER = 100;
@@ -34,7 +36,6 @@ public class WeatherProvider extends ContentProvider {
     private static final int LOCATION_ID = 301;
 
     private static final UriMatcher uriMatcher = buildUriMatcher();
-    private WeatherDbHelper weatherDbHelper;
 
     private static final SQLiteQueryBuilder weatherByLocationSettingQueryBuilder;
 
@@ -74,7 +75,7 @@ public class WeatherProvider extends ContentProvider {
             selectionArgs = new String[]{locationSetting, startDate};
         }
 
-        return weatherByLocationSettingQueryBuilder.query(weatherDbHelper.getReadableDatabase(),
+        return weatherByLocationSettingQueryBuilder.query(ActiveAndroid.getDatabase(),
                 projection,
                 selection,
                 selectionArgs,
@@ -88,7 +89,7 @@ public class WeatherProvider extends ContentProvider {
         String locationSetting = WeatherContract.WeatherEntry.getLocationSettingFromUri(uri);
         String day = WeatherContract.WeatherEntry.getDateFromUri(uri);
 
-        return weatherByLocationSettingQueryBuilder.query(weatherDbHelper.getReadableDatabase(),
+        return weatherByLocationSettingQueryBuilder.query(ActiveAndroid.getDatabase(),
                 projection,
                 locationSettingWithDaySelection,
                 new String[]{locationSetting, day},
@@ -115,7 +116,6 @@ public class WeatherProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        weatherDbHelper = new WeatherDbHelper(getContext());
         return true;
     }
 
@@ -140,7 +140,7 @@ public class WeatherProvider extends ContentProvider {
             }
             // "weather"
             case WEATHER: {
-                retCursor = weatherDbHelper.getReadableDatabase().query(
+                retCursor = ActiveAndroid.getDatabase().query(
                         WeatherContract.WeatherEntry.TABLE_NAME,
                         projection,
                         selection,
@@ -157,7 +157,7 @@ public class WeatherProvider extends ContentProvider {
 
                 String modifiedSelection = WeatherContract.LocationEntry._ID + " = ?";
 
-                retCursor = weatherDbHelper.getReadableDatabase().query(
+                retCursor = ActiveAndroid.getDatabase().query(
                         WeatherContract.LocationEntry.TABLE_NAME,
                         projection,
                         modifiedSelection,
@@ -170,7 +170,7 @@ public class WeatherProvider extends ContentProvider {
             }
             // "location"
             case LOCATION: {
-                retCursor = weatherDbHelper.getReadableDatabase().query(
+                retCursor = ActiveAndroid.getDatabase().query(
                         WeatherContract.LocationEntry.TABLE_NAME,
                         projection,
                         selection,
@@ -219,7 +219,7 @@ public class WeatherProvider extends ContentProvider {
 
         final int match = uriMatcher.match(uri);
         Uri returnUri = null;
-        SQLiteDatabase db = weatherDbHelper.getWritableDatabase();
+        SQLiteDatabase db = ActiveAndroid.getDatabase();
 
         switch (match) {
             case WEATHER: {
@@ -258,7 +258,7 @@ public class WeatherProvider extends ContentProvider {
         final String tableName = getTableName(uri);
 
         // do the actual deletion
-        int affectedRows = weatherDbHelper.getWritableDatabase()
+        int affectedRows = ActiveAndroid.getDatabase()
                 .delete(tableName, selection, selectionArgs);
 
         // notify any registered observers of this change
@@ -275,7 +275,7 @@ public class WeatherProvider extends ContentProvider {
         final String tableName = getTableName(uri);
 
         // do the actual update
-        int affectedRows = weatherDbHelper.getWritableDatabase()
+        int affectedRows = ActiveAndroid.getDatabase()
                 .update(tableName, contentValues, selection, selectionArgs);
 
         // notify any registered observers of this change
@@ -288,7 +288,7 @@ public class WeatherProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
-        SQLiteDatabase db = weatherDbHelper.getWritableDatabase();
+        SQLiteDatabase db = ActiveAndroid.getDatabase();
 
         final int match = uriMatcher.match(uri);
 
